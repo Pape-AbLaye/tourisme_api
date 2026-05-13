@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: tourisme_api
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tourism
+    username: abdoulaye
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9091/realms/tourism_app
+  servlet:
+    multipart:
+      max-file-size: 50MB
+
+springdoc:
+  default-produces-media-type: application/json
+
+application:
+  file:
+    uploads:
+      media-output-path: ./uploads
