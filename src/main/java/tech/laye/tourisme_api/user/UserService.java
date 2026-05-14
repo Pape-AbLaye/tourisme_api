@@ -1,5 +1,6 @@
 package tech.laye.tourisme_api.user;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -18,5 +19,13 @@ public class UserService {
                 .stream()
                 .map(userMapper::toUserResponse)
                 .toList();
+    }
+
+    public UserResponse findUserById(String userId) {
+        return userRepository.findById(userId)
+                .map(userMapper::toUserResponse)
+                .orElseThrow(
+                        () -> new EntityNotFoundException("User not found !")
+                );
     }
 }

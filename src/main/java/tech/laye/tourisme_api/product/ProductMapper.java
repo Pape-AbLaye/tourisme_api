@@ -1,8 +1,7 @@
 package tech.laye.tourisme_api.product;
 
 import org.springframework.stereotype.Service;
-import tech.laye.tourisme_api.circuit.Circuit;
-import tech.laye.tourisme_api.circuit.CircuitRequest;
+import tech.laye.tourisme_api.common.PurchaseResponse;
 
 @Service
 public class ProductMapper {
@@ -26,5 +25,15 @@ public class ProductMapper {
                 .productType(productRequest.productType())
                 .description(productRequest.description())
                 .build();
+    }
+
+    public PurchaseResponse toProductPurchaseResponse(Product product, double quantity) {
+        return  new PurchaseResponse(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                quantity
+        );
     }
 }

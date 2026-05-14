@@ -15,7 +15,21 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-
+  mail:
+    username: ablaye
+    host: localhost
+    password: password
+    port: 1025
+    properties:
+      mail:
+        smtp:
+          trust: "*"
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
 
   security:
     oauth2:
@@ -25,6 +39,23 @@ spring:
   servlet:
     multipart:
       max-file-size: 50MB
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    consumer:
+      group-id: tourisme-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.use.type.headers: false
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
 
 springdoc:
   default-produces-media-type: application/json

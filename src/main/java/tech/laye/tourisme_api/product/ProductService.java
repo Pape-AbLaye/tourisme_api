@@ -11,12 +11,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import tech.laye.tourisme_api.common.PurchaseRequest;
+import tech.laye.tourisme_api.common.PurchaseResponse;
+import tech.laye.tourisme_api.exception.ProductPurchaseException;
 import tech.laye.tourisme_api.securityUtils.SecurityUtils;
 import tech.laye.tourisme_api.user.Role;
 import tech.laye.tourisme_api.user.User;
 import tech.laye.tourisme_api.user.UserRepository;
 
 import javax.naming.OperationNotSupportedException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -44,7 +50,7 @@ public class ProductService {
     }
 
     @Transactional
-    public Long save(ProductRequest productRequest, Authentication connectedUser) {
+    public Integer save(ProductRequest productRequest, Authentication connectedUser) {
         String currentUserId = SecurityUtils.getCurrentUserId(connectedUser);
 
         User user = userRepository.findById(currentUserId).orElseThrow(
@@ -61,7 +67,7 @@ public class ProductService {
     }
 
     @Transactional
-    public Long updateStock(Long id , Integer value , Authentication connectedUser) throws OperationNotSupportedException {
+    public Integer updateStock(Long id , Integer value , Authentication connectedUser) throws OperationNotSupportedException {
         Product product = productRepository.findById(id).orElseThrow(
                 ()-> new EntityNotFoundException("product not found")
         );
@@ -108,7 +114,7 @@ public class ProductService {
                 .map(productMapper::toProductResponse);
     }
 
-    public Long toggleVisibility(Long id) {
+    public Integer toggleVisibility(Long id) {
         Product product = productRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Entity not found !")
         );
@@ -123,5 +129,35 @@ public class ProductService {
 
         return productRepository.findAllByIsHiddenTrue( pageable)
                 .map(productMapper::toProductResponse);
+    }
+
+    public List<PurchaseResponse> purchaseProduct(List<PurchaseRequest> request) {
+        var productIds = request
+                .stream()
+                .map(PurchaseRequest::productId)
+                .toList();
+        var storedProducts = productRepository.findAllByIdInOrderById(productIds);
+        if (productIds.size() != storedProducts.size()){
+            throw new ProductPurchaseException("One or more products doesn't exist !");
+        }
+
+        var storesRequest = request
+                .stream()
+                .sorted(Comparator.comparing(PurchaseRequest::productId))
+                .toList();
+        var purchasedProducts = new ArrayList<PurchaseResponse>();
+        for (int i = 0; i < storedProducts.size(); i++) {
+            var product = storedProducts.get(i);
+            var productRequest = storesRequest.get(i);
+            if (product.getStock() < productRequest.quantity()){
+                throw new ProductPurchaseException("insufficient stock quantity for product with ID ::!"+ productRequest.productId());
+            }
+            var newAvailableQuantity = product.getStock() - productRequest.quantity();
+            product.setStock(newAvailableQuantity);
+            productRepository.save(product);
+            purchasedProducts.add(productMapper.toProductPurchaseResponse(product ,productRequest.quantity()));
+        }
+
+        return purchasedProducts;
     }
 }

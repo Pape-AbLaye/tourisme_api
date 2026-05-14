@@ -7,8 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import tech.laye.tourisme_api.common.PurchaseRequest;
+import tech.laye.tourisme_api.common.PurchaseResponse;
 
 import javax.naming.OperationNotSupportedException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -49,8 +52,15 @@ public class ProductController {
         return productService.getProductByType(page,size,type);
     }
 
+    @PostMapping("/purchase")
+    public ResponseEntity<List<PurchaseResponse>> purchaseProduct(
+            @RequestBody List<PurchaseRequest> request
+    ){
+        return ResponseEntity.ok(productService.purchaseProduct(request));
+    }
+
     @PostMapping
-    public ResponseEntity<Long> saveProduct(
+    public ResponseEntity<Integer> saveProduct(
             @RequestBody @Valid ProductRequest productRequest,
             Authentication connectedUser
     ){
@@ -58,7 +68,7 @@ public class ProductController {
     }
 
     @PatchMapping("/{id}/stock")
-    public ResponseEntity<Long> updateStock(
+    public ResponseEntity<Integer> updateStock(
             @PathVariable Long id ,
             @RequestParam Integer value,
             Authentication connectedUser
@@ -68,7 +78,7 @@ public class ProductController {
 
     @PatchMapping("/{id}/hide")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Long> toggleProductVisibility(@PathVariable Long id) {
+    public ResponseEntity<Integer> toggleProductVisibility(@PathVariable Long id) {
         return ResponseEntity.ok(productService.toggleVisibility(id));
     }
 

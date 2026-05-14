@@ -2,6 +2,8 @@ package tech.laye.tourisme_api.product;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -9,10 +11,10 @@ import lombok.*;
 @Builder
 public class ProductResponse {
 
-    private Long id;
+    private Integer id;
     private String name;
     private String description;
-    private int stock;
+    private double stock;
     private ProductType productType;
-    private Long price;
+    private BigDecimal price;
 }

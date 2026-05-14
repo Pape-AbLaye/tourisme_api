@@ -7,6 +7,7 @@ import tech.laye.tourisme_api.common.BaseAuditingEntity;
 import tech.laye.tourisme_api.order_line.OrderLine;
 import tech.laye.tourisme_api.user.User;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Setter
@@ -19,12 +20,13 @@ public class Product extends BaseAuditingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private String name;
     private String description;
-    private int stock;
+    private double stock;
+    @Enumerated(EnumType.STRING)
     private ProductType productType;
-    private Long price;
+    private BigDecimal price;
     @Column(nullable = false)
     private boolean isHidden = false;
     //todo photo
